@@ -34,3 +34,15 @@ Use `--copy` / `-Copy` if you prefer an independent copy.
 
 Copy `templates/SKILL.template.md` into `skills/<tech>-<topic>/SKILL.md` and edit it.
 The folder name must match the `name` in the frontmatter.
+
+## Development
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/),
+enforced by Husky + commitlint. After cloning, run once:
+
+```bash
+pnpm install
+```
+
+Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+Example: `feat(ado-task-context): add attachment inventory`

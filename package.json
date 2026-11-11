@@ -2,10 +2,10 @@
   "name": "skill-forge",
   "version": "1.0.0",
   "description": "My personal forge of Claude skills: created, tuned and battle-tested for the stacks I use every day (React, Python/FastAPI, Azure).",
-  "main": "index.js",
   "directories": {
     "doc": "docs"
   },
+  "private": true,
   "scripts": {
     "prepare": "husky"
   },
@@ -13,14 +13,19 @@
     "type": "git",
     "url": "git+https://github.com/hugocruzlfc/skill-forge.git"
   },
-  "keywords": [],
+  "keywords": [
+    "claude",
+    "copilot",
+    "agent-skills"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MTI",
   "bugs": {
     "url": "https://github.com/hugocruzlfc/skill-forge/issues"
   },
   "homepage": "https://github.com/hugocruzlfc/skill-forge#readme",
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7"
   }
