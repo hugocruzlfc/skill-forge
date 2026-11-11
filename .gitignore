@@ -3,3 +3,5 @@
 !.env.example
 .aw/tasks/
 .DS_Store
+
+node_modules/
