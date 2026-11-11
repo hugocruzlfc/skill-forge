@@ -19,7 +19,7 @@
     "agent-skills"
   ],
   "author": "Hugo Cruz <hugocruzlfc@gmail.com>",
-  "license": "MTI",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/hugocruzlfc/skill-forge/issues"
   },
