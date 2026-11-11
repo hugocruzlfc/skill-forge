@@ -27,15 +27,28 @@ Options:
   --force                   Replace existing folders that are not symlinks
   -h, --help                Show this help
 
-With no skill names, every skill under skills/ is installed.
+Skills live in skills/<name> or skills/<group>/<name> and are installed flat,
+so skill names must be unique across groups.
+With no skill names, every skill is installed.
 USAGE
 }
 
+# Prints "name<TAB>path" for every skill, flat (skills/<name>) or
+# grouped one level deep (skills/<group>/<name>).
+list_skill_paths() {
+  local f dir
+  while IFS= read -r f; do
+    dir="$(dirname "$f")"
+    printf '%s\t%s\n' "$(basename "$dir")" "$dir"
+  done < <(find "$REPO_DIR/skills" -mindepth 2 -maxdepth 3 -name SKILL.md | sort)
+}
+
 list_skills() {
-  local d
-  for d in "$REPO_DIR"/skills/*/; do
-    [[ -f "$d/SKILL.md" ]] && basename "$d"
-  done
+  list_skill_paths | cut -f1
+}
+
+find_skill() {
+  list_skill_paths | awk -F'\t' -v n="$1" '$1 == n { print $2; exit }'
 }
 
 add_target() {
@@ -81,6 +94,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+duplicates="$(list_skills | sort | uniq -d)"
+if [[ -n "$duplicates" ]]; then
+  echo "error: duplicate skill names (they are installed flat, so they must be unique):" >&2
+  echo "$duplicates" >&2
+  exit 1
+fi
+
 if [[ ${#TARGETS[@]} -eq 0 ]]; then
   prompt_target
 fi
@@ -102,10 +122,10 @@ fi
 for target in "${TARGETS[@]}"; do
   mkdir -p "$target"
   for name in "${SKILLS[@]}"; do
-    src="$REPO_DIR/skills/$name"
+    src="$(find_skill "$name")"
     dest="$target/$name"
 
-    if [[ ! -f "$src/SKILL.md" ]]; then
+    if [[ -z "$src" ]]; then
       echo "skip:   $name (not found or missing SKILL.md)"
       continue
     fi

@@ -13,10 +13,13 @@ $repo      = $PSScriptRoot
 $claudeDir = Join-Path $HOME '.claude/skills'
 $agentsDir = Join-Path $HOME '.agents/skills'
 
-function Get-SkillNames {
-    Get-ChildItem (Join-Path $repo 'skills') -Directory |
-        Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') } |
-        ForEach-Object Name
+# Skills live in skills/<name> or skills/<group>/<name> and are installed flat.
+function Get-SkillMap {
+    $root = Join-Path $repo 'skills'
+    if (-not (Test-Path $root)) { return @() }
+    @(Get-ChildItem $root -Recurse -Depth 2 -Filter SKILL.md -File |
+        Sort-Object FullName |
+        ForEach-Object { [pscustomobject]@{ Name = $_.Directory.Name; Path = $_.Directory.FullName } })
 }
 
 function Resolve-Target([string]$Name) {
@@ -29,7 +32,14 @@ function Resolve-Target([string]$Name) {
     }
 }
 
-if ($List) { Get-SkillNames; return }
+$skillMap = Get-SkillMap
+
+if ($List) { $skillMap.Name; return }
+
+$duplicates = @($skillMap | Group-Object Name | Where-Object Count -gt 1)
+if ($duplicates.Count -gt 0) {
+    throw "Duplicate skill names (they are installed flat, so they must be unique): $($duplicates.Name -join ', ')"
+}
 
 if (-not $Target) {
     if ([Console]::IsInputRedirected) {
@@ -53,7 +63,7 @@ if ($destinations.Count -gt 1) {
     Write-Warning 'VS Code Copilot reads both ~/.claude/skills and ~/.agents/skills, so the same skill may show up twice there.'
 }
 
-if (-not $Skill) { $Skill = @(Get-SkillNames) }
+if (-not $Skill) { $Skill = @($skillMap.Name) }
 if ($Skill.Count -eq 0) { throw "No skills found under $repo/skills" }
 
 $linkType = if ($IsWindows) { 'Junction' } else { 'SymbolicLink' }
@@ -62,10 +72,10 @@ foreach ($dest in $destinations) {
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
 
     foreach ($name in $Skill) {
-        $src  = Join-Path $repo "skills/$name"
-        $link = Join-Path $dest $name
+        $entry = $skillMap | Where-Object Name -eq $name | Select-Object -First 1
+        $link  = Join-Path $dest $name
 
-        if (-not (Test-Path (Join-Path $src 'SKILL.md'))) {
+        if (-not $entry) {
             Write-Warning "skip:   $name (not found or missing SKILL.md)"
             continue
         }
@@ -81,10 +91,10 @@ foreach ($dest in $destinations) {
         }
 
         if ($Copy) {
-            Copy-Item $src $link -Recurse
+            Copy-Item $entry.Path $link -Recurse
             Write-Host "copied: $name -> $link"
         } else {
-            New-Item -ItemType $linkType -Path $link -Target $src | Out-Null
+            New-Item -ItemType $linkType -Path $link -Target $entry.Path | Out-Null
             Write-Host "linked: $name -> $link"
         }
     }
