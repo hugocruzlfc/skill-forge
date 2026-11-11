@@ -1,27 +1,27 @@
 ---
 name: tech-topic
-description: "Qué hace la skill en una frase. Úsala cuando el usuario pida X, Y o Z. No la uses para W."
+description: "One sentence on what the skill does. Use when the user asks for X, Y or Z. Do not use for W."
 ---
 
-# Título de la skill
+# Skill title
 
-## Cuándo usarla
+## When to use
 
-- Situación 1
-- Situación 2
+- Situation 1
+- Situation 2
 
-## Flujo
+## Workflow
 
-1. Paso uno
-2. Paso dos
-3. Paso tres
+1. Step one
+2. Step two
+3. Step three
 
-## Reglas
+## Rules
 
-- Regla importante 1
-- Regla importante 2
+- Important rule 1
+- Important rule 2
 
-## Recursos
+## Resources
 
-- [Referencia](./references/guia.md): se carga solo cuando hace falta
-- [Script](./scripts/run.sh): automatiza X
+- [Reference](./references/guide.md): loaded only when needed
+- [Script](./scripts/run.sh): automates X
