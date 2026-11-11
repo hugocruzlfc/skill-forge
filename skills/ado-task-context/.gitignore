@@ -1,0 +1,4 @@
+.aw/tasks/
+.env
+.env.*
+!.env.example
